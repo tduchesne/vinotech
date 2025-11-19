@@ -40,9 +40,8 @@ public class Vin {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Vin)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Vin vin = (Vin) o;
-        // On se base uniquement sur l'ID de la DB
         return id != null && id.equals(vin.id);
     }
 

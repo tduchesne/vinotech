@@ -34,7 +34,7 @@ public class Plat {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Plat)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Plat plat = (Plat) o;
         return id != null && id.equals(plat.id);
     }

@@ -39,8 +39,9 @@ public class Vin {
     private String cepage;
 
     /**
-     * Ajoute un plat à l'accord et synchronise la relation bidirectionnelle.
-     * @param plat Le plat à ajouter.
+     * Associates the given Plat with this Vin and updates the bidirectional relationship.
+     *
+     * @param plat the Plat to associate with this Vin
      */
     public void addPlat(Plat plat) {
         if (plat == null) {
@@ -55,8 +56,9 @@ public class Vin {
     }
 
     /**
-     * Retire un plat de l'accord et synchronise la relation bidirectionnelle.
-     * @param plat Le plat à retirer.
+     * Removes the given Plat from this Vin's accords and updates the bidirectional association.
+     *
+     * @param plat the Plat to remove from this Vin's accords
      */
     public void removePlat(Plat plat) {
         if (plat == null) {

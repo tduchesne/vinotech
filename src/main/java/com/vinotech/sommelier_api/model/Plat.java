@@ -35,6 +35,11 @@ public class Plat {
     @ManyToMany(mappedBy = "platsAccordes", fetch = FetchType.LAZY)
     private Set<Vin> vinsAccordes = new HashSet<>();
 
+    /**
+     * Gets the wines associated with this plat.
+     *
+     * @return the {@code Set<Vin>} of wines associated with this plat; may be empty
+     */
     public Set<Vin> getVinsAccordes() {
         return vinsAccordes;
     }

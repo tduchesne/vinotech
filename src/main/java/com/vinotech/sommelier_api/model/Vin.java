@@ -47,7 +47,10 @@ public class Vin {
             return;
         }
         if (this.platsAccordes.add(plat)) {
-            plat.getVinsAccordes().add(this);
+            Set<Vin> vinsAccordes = plat.getVinsAccordes();
+            if (vinsAccordes != null) {
+                vinsAccordes.add(this);
+            }
         }
     }
 
@@ -60,7 +63,10 @@ public class Vin {
             return;
         }
         if (this.platsAccordes.remove(plat)) {
-            plat.getVinsAccordes().remove(this);
+            Set<Vin> vinsAccordes = plat.getVinsAccordes();
+            if (vinsAccordes != null) {
+                vinsAccordes.remove(this);
+            }
         }
     }
 

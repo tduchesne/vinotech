@@ -46,8 +46,9 @@ public class Vin {
         if (plat == null) {
             return;
         }
-        this.platsAccordes.add(plat);
-        plat.getVinsAccordes().add(this);
+        if (this.platsAccordes.add(plat)) {
+            plat.getVinsAccordes().add(this);
+        }
     }
 
     /**
@@ -58,8 +59,9 @@ public class Vin {
         if (plat == null) {
             return;
         }
-        this.platsAccordes.remove(plat);
-        plat.getVinsAccordes().remove(this);
+        if (this.platsAccordes.remove(plat)) {
+            plat.getVinsAccordes().remove(this);
+        }
     }
 
     // Relation Many-to-Many (Côté Possesseur)

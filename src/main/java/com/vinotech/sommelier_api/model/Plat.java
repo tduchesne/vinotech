@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,12 +15,12 @@ import java.util.Set;
 @Entity
 @Table(name = "plats")
 public class Plat {
-
+    // Attributs
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String nom;
 
     @Column(columnDefinition = "TEXT")
@@ -29,6 +28,14 @@ public class Plat {
 
     @Column(columnDefinition = "TEXT")
     private String allergenes;
+
+    // Relation Many-to-Many (Côté Inverse)
+    @ManyToMany(mappedBy = "platsAccordes", fetch = FetchType.LAZY)
+    private Set<Vin> vinsAccordes = new HashSet<>();
+
+    public Set<Vin> getVinsAccordes() {
+        return vinsAccordes;
+    }
 
     /**
      * Determine whether this Plat is equal to another object based on its non-null id.
@@ -53,9 +60,5 @@ public class Plat {
     public int hashCode() {
         return getClass().hashCode();
     }
-
-    // Relation Many-to-Many (Côté Inverse)
-    @ManyToMany(mappedBy = "platsAccordes", fetch = FetchType.LAZY)
-    private Set<Vin> vinsAccordes = new HashSet<>();
 
 }

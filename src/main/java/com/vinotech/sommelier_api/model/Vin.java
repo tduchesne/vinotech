@@ -14,18 +14,18 @@ import java.util.Set;
 @Entity
 @Table(name = "vins")
 public class Vin {
-
+    // Attributs
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // -> SERIAL/PRIMARY KEY
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String nom;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal prix;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String region;
 
     @Column(name = "notes_degustation", columnDefinition = "TEXT")
@@ -34,7 +34,35 @@ public class Vin {
     @Enumerated(EnumType.STRING)
     private CouleurVin couleur;
 
+    @Column(length = 50)
     private String cepage;
+
+    /**
+     * Ajoute un plat à l'accord et synchronise la relation bidirectionnelle.
+     * @param plat Le plat à ajouter.
+     */
+    public void addPlat(Plat plat) {
+        this.platsAccordes.add(plat);
+        plat.getVinsAccordes().add(this);
+    }
+
+    /**
+     * Retire un plat de l'accord et synchronise la relation bidirectionnelle.
+     * @param plat Le plat à retirer.
+     */
+    public void removePlat(Plat plat) {
+        this.platsAccordes.remove(plat);
+        plat.getVinsAccordes().remove(this);
+    }
+
+    // Relation Many-to-Many (Côté Possesseur)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "accord_vin_plat",
+            joinColumns = @JoinColumn(name = "vin_id"),
+            inverseJoinColumns = @JoinColumn(name = "plat_id")
+    )
+    private Set<Plat> platsAccordes = new HashSet<>();
 
     /**
      * Determine whether this Vin is equal to another object by comparing their persistent IDs.
@@ -59,13 +87,4 @@ public class Vin {
     public int hashCode() {
         return getClass().hashCode();
     }
-
-    // Relation Many-to-Many (Côté Possesseur)
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "accord_vin_plat",
-            joinColumns = @JoinColumn(name = "vin_id"),
-            inverseJoinColumns = @JoinColumn(name = "plat_id")
-    )
-    private Set<Plat> platsAccordes = new HashSet<>();
 }

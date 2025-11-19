@@ -1,6 +1,7 @@
 package com.vinotech.sommelier_api.model;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -14,18 +15,18 @@ import java.util.Set;
 @Entity
 @Table(name = "vins")
 public class Vin {
-
+    // Attributs
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // -> SERIAL/PRIMARY KEY
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String nom;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal prix;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String region;
 
     @Column(name = "notes_degustation", columnDefinition = "TEXT")
@@ -34,7 +35,50 @@ public class Vin {
     @Enumerated(EnumType.STRING)
     private CouleurVin couleur;
 
+    @Column(length = 50)
     private String cepage;
+
+    /**
+     * Ajoute un plat à l'accord et synchronise la relation bidirectionnelle.
+     * @param plat Le plat à ajouter.
+     */
+    public void addPlat(Plat plat) {
+        if (plat == null) {
+            return;
+        }
+        if (this.platsAccordes.add(plat)) {
+            Set<Vin> vinsAccordes = plat.getVinsAccordes();
+            if (vinsAccordes != null) {
+                vinsAccordes.add(this);
+            }
+        }
+    }
+
+    /**
+     * Retire un plat de l'accord et synchronise la relation bidirectionnelle.
+     * @param plat Le plat à retirer.
+     */
+    public void removePlat(Plat plat) {
+        if (plat == null) {
+            return;
+        }
+        if (this.platsAccordes.remove(plat)) {
+            Set<Vin> vinsAccordes = plat.getVinsAccordes();
+            if (vinsAccordes != null) {
+                vinsAccordes.remove(this);
+            }
+        }
+    }
+
+    // Relation Many-to-Many (Côté Possesseur)
+    @Setter(AccessLevel.NONE) // Empêche Lombok de générer setPlatsAccordes()
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "accord_vin_plat",
+            joinColumns = @JoinColumn(name = "vin_id"),
+            inverseJoinColumns = @JoinColumn(name = "plat_id")
+    )
+    private Set<Plat> platsAccordes = new HashSet<>();
 
     /**
      * Determine whether this Vin is equal to another object by comparing their persistent IDs.
@@ -59,13 +103,4 @@ public class Vin {
     public int hashCode() {
         return getClass().hashCode();
     }
-
-    // Relation Many-to-Many (Côté Possesseur)
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "accord_vin_plat",
-            joinColumns = @JoinColumn(name = "vin_id"),
-            inverseJoinColumns = @JoinColumn(name = "plat_id")
-    )
-    private Set<Plat> platsAccordes = new HashSet<>();
 }

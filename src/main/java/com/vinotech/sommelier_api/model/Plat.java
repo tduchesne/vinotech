@@ -5,6 +5,7 @@ package com.vinotech.sommelier_api.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.AccessLevel;
 import java.util.HashSet;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "plats")
 public class Plat {
@@ -30,14 +32,17 @@ public class Plat {
     @Column(columnDefinition = "TEXT")
     private String allergenes;
 
+    /**
+     * -- GETTER --
+     *  Gets the wines associated with this plat.
+     *
+     * @return the {@code Set<Vin>} of wines associated with this plat; may be empty
+     */
     // Relation Many-to-Many (Côté Inverse)
+    @Getter
     @Setter(AccessLevel.NONE)
     @ManyToMany(mappedBy = "platsAccordes", fetch = FetchType.LAZY)
     private Set<Vin> vinsAccordes = new HashSet<>();
-
-    public Set<Vin> getVinsAccordes() {
-        return vinsAccordes;
-    }
 
     /**
      * Determine whether this Plat is equal to another object based on its non-null id.

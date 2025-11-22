@@ -32,19 +32,17 @@ public class Plat {
     @Column(columnDefinition = "TEXT")
     private String allergenes;
 
-    // Relation Many-to-Many (Côté Inverse)
-    @Setter(AccessLevel.NONE)
-    @ManyToMany(mappedBy = "platsAccordes", fetch = FetchType.LAZY)
-    private Set<Vin> vinsAccordes = new HashSet<>();
-
     /**
-     * Gets the wines associated with this plat.
+     * -- GETTER --
+     *  Gets the wines associated with this plat.
      *
      * @return the {@code Set<Vin>} of wines associated with this plat; may be empty
      */
-    public Set<Vin> getVinsAccordes() {
-        return vinsAccordes;
-    }
+    // Relation Many-to-Many (Côté Inverse)
+    @Getter
+    @Setter(AccessLevel.NONE)
+    @ManyToMany(mappedBy = "platsAccordes", fetch = FetchType.LAZY)
+    private Set<Vin> vinsAccordes = new HashSet<>();
 
     /**
      * Determine whether this Plat is equal to another object based on its non-null id.

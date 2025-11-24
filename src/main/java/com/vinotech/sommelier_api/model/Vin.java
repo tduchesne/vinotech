@@ -1,17 +1,18 @@
 package com.vinotech.sommelier_api.model;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "vins")
 public class Vin {
@@ -39,12 +40,17 @@ public class Vin {
     private String cepage;
 
     /**
-     * Ajoute un plat à l'accord et synchronise la relation bidirectionnelle.
-     * @param plat Le plat à ajouter.
+     * Associates the given Plat with this Vin and updates the bidirectional relationship.
+     *
+     * @param plat the Plat to associate with this Vin
      */
     public void addPlat(Plat plat) {
         if (plat == null) {
             return;
+        }
+        // Ensure the collection exists (defensive against builder/all-args constructor that may set it to null)
+        if (this.platsAccordes == null) {
+            this.platsAccordes = new HashSet<>();
         }
         if (this.platsAccordes.add(plat)) {
             Set<Vin> vinsAccordes = plat.getVinsAccordes();
@@ -55,11 +61,16 @@ public class Vin {
     }
 
     /**
-     * Retire un plat de l'accord et synchronise la relation bidirectionnelle.
-     * @param plat Le plat à retirer.
+     * Removes the given Plat from this Vin's accords and updates the bidirectional association.
+     *
+     * @param plat the Plat to remove from this Vin's accords
      */
     public void removePlat(Plat plat) {
         if (plat == null) {
+            return;
+        }
+        // If the collection is null there's nothing to remove
+        if (this.platsAccordes == null) {
             return;
         }
         if (this.platsAccordes.remove(plat)) {
@@ -72,6 +83,7 @@ public class Vin {
 
     // Relation Many-to-Many (Côté Possesseur)
     @Setter(AccessLevel.NONE) // Empêche Lombok de générer setPlatsAccordes()
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "accord_vin_plat",

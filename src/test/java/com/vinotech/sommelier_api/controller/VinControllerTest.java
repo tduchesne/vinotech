@@ -70,7 +70,7 @@ class VinControllerTest {
                 .prix(new BigDecimal("60.00"))
                 .region("Champagne")
                 .notesDegustation("Effervescent avec des notes de pomme")
-                .couleur(CouleurVin.BULLE)
+                .couleur(CouleurVin.EFFERVESCENT)
                 .cepage("Pinot Noir")
                 .build();
     }
@@ -187,9 +187,9 @@ class VinControllerTest {
     @DisplayName("Should create a vin with maximum length strings")
     void shouldCreateVinWithMaxLengthStrings() throws Exception {
         // Given - testing boundary conditions for string lengths
-        String maxNom = "A".repeat(50);
-        String maxRegion = "B".repeat(50);
-        String maxCepage = "C".repeat(50);
+        String maxNom = "A".repeat(100);
+        String maxRegion = "B".repeat(100);
+        String maxCepage = "C".repeat(100);
         String longNotes = "D".repeat(1000); // TEXT field, can be very long
 
         Vin vin = Vin.builder()
@@ -329,7 +329,7 @@ class VinControllerTest {
                 .andExpect(jsonPath("$[1].couleur").value("BLANC"))
                 .andExpect(jsonPath("$[2].id").value(3L))
                 .andExpect(jsonPath("$[2].nom").value("Champagne Brut"))
-                .andExpect(jsonPath("$[2].couleur").value("BULLE"));
+                .andExpect(jsonPath("$[2].couleur").value("EFFERVESCENT"));
 
         verify(vinService, times(1)).findAll();
     }

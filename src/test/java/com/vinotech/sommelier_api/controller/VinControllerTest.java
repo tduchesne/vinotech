@@ -189,7 +189,7 @@ class VinControllerTest {
         // Given - testing boundary conditions for string lengths
         String maxNom = "A".repeat(100);
         String maxRegion = "B".repeat(100);
-        String maxCepage = "C".repeat(50);
+        String maxCepage = "C".repeat(100);
         String longNotes = "D".repeat(1000); // TEXT field, can be very long
 
         Vin vin = Vin.builder()

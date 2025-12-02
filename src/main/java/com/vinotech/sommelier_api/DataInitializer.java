@@ -2,7 +2,9 @@ package com.vinotech.sommelier_api;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vinotech.sommelier_api.model.Plat;
 import com.vinotech.sommelier_api.model.Vin;
+import com.vinotech.sommelier_api.repository.PlatRepository;
 import com.vinotech.sommelier_api.repository.VinRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +18,7 @@ import java.util.List;
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner initDatabase(VinRepository vinRepository) {
+    CommandLineRunner initDatabase(VinRepository vinRepository, PlatRepository platRepository) {
         return args -> {
             // On vérifie si la base est vide pour ne pas dupliquer les données
             if (vinRepository.count() == 0) {
@@ -41,6 +43,21 @@ public class DataInitializer {
             } else {
                 System.out.println("La base de données contient déjà " + vinRepository.count() + " vins.");
             }
+            if (platRepository.count() == 0) {
+                System.out.println("🍽️ Base de plats vide. Chargement...");
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    InputStream inputStream = new ClassPathResource("plats.json").getInputStream();
+                    // Jackson va mapper automatiquement "nom", "ingredients", "allergenes"
+                    List<Plat> plats = mapper.readValue(inputStream, new TypeReference<List<Plat>>(){});
+
+                    platRepository.saveAll(plats);
+                    System.out.println("✅ " + plats.size() + " plats importés !");
+                } catch (Exception e) {
+                    System.out.println("❌ Erreur import plats : " + e.getMessage());
+                }
+            }
         };
+
     }
 }

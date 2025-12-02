@@ -2,12 +2,15 @@ package com.vinotech.sommelier_api;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vinotech.sommelier_api.model.Plat;
 import com.vinotech.sommelier_api.model.Vin;
+import com.vinotech.sommelier_api.repository.PlatRepository;
 import com.vinotech.sommelier_api.repository.VinRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.io.InputStream;
 import java.util.List;
@@ -16,31 +19,43 @@ import java.util.List;
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner initDatabase(VinRepository vinRepository) {
+    CommandLineRunner initDatabase(VinRepository vinRepository, PlatRepository platRepository) {
         return args -> {
-            // On vérifie si la base est vide pour ne pas dupliquer les données
-            if (vinRepository.count() == 0) {
-                System.out.println("Base de données vide. Chargement des vins initiaux...");
-
-                try {
-                    // Lecture du fichier JSON
-                    ObjectMapper mapper = new ObjectMapper();
-                    InputStream inputStream = new ClassPathResource("vins.json").getInputStream();
-
-                    // Conversion JSON -> Liste de Vins
-                    List<Vin> vins = mapper.readValue(inputStream, new TypeReference<List<Vin>>(){});
-
-                    // Sauvegarde en base
-                    vinRepository.saveAll(vins);
-                    System.out.println("✅ " + vins.size() + " vins ont été importés avec succès !");
-
-                } catch (Exception e) {
-                    System.out.println("❌ Erreur lors de l'import des vins : " + e.getMessage());
-                    e.printStackTrace();
-                }
-            } else {
-                System.out.println("La base de données contient déjà " + vinRepository.count() + " vins.");
-            }
+            loadDataIfEmpty(vinRepository, "vins.json", new TypeReference<List<Vin>>(){}, "vins");
+            loadDataIfEmpty(platRepository, "plats.json", new TypeReference<List<Plat>>(){}, "plats");
         };
+    }
+
+    /**
+     * Méthode générique pour charger des données depuis un JSON si la table est vide.
+     *
+     * @param repository Le repository JPA (VinRepository ou PlatRepository)
+     * @param filename Le nom du fichier JSON dans resources
+     * @param typeReference Le type de données pour Jackson (ex: List<Vin>)
+     * @param entityName Le nom de l'entité pour les logs (ex: "vins")
+     * @param <T> Le type de l'entité
+     */
+    private <T> void loadDataIfEmpty(JpaRepository<T, Long> repository, String filename, TypeReference<List<T>> typeReference, String entityName) {
+        if (repository.count() == 0) {
+            System.out.println("📦 Base de " + entityName + " vide. Chargement...");
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                InputStream inputStream = new ClassPathResource(filename).getInputStream();
+
+                // Conversion JSON -> Liste d'objets
+                List<T> items = mapper.readValue(inputStream, typeReference);
+
+                // Sauvegarde en base
+                repository.saveAll(items);
+                System.out.println("✅ " + items.size() + " " + entityName + " importés !");
+
+            } catch (Exception e) {
+                System.out.println("❌ Erreur import " + entityName + " : " + e.getMessage());
+                // Ajout du stacktrace pour le debug (demandé par la revue de code)
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("👌 La base contient déjà " + repository.count() + " " + entityName + ".");
+        }
     }
 }

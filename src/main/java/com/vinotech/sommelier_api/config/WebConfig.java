@@ -2,6 +2,7 @@ package com.vinotech.sommelier_api.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -14,10 +15,15 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**") // Applique les règles à toutes les routes API
-                .allowedOrigins(allowedOrigins.split(",")) // Supporte plusieurs origines séparées par des virgules
+        // Si la propriété est vide (ex: par défaut en prod sans variable d'env), on ne configure pas le CORS (accès bloqué par défaut)
+        if (!StringUtils.hasText(allowedOrigins)) {
+            return;
+        }
+
+        registry.addMapping("/api/**")
+                .allowedOrigins(allowedOrigins.split(","))
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(false); // Mettre à true si besoin de cookies/auth, mais nécessite des origines explicites (pas *)
+                .allowCredentials(false);
     }
 }

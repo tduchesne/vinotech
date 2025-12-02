@@ -44,18 +44,21 @@ public class DataInitializer {
                 System.out.println("La base de données contient déjà " + vinRepository.count() + " vins.");
             }
             if (platRepository.count() == 0) {
-                System.out.println("🍽️ Base de plats vide. Chargement...");
+                System.out.println("Base de plats vide. Chargement...");
                 try {
                     ObjectMapper mapper = new ObjectMapper();
                     InputStream inputStream = new ClassPathResource("plats.json").getInputStream();
                     // Jackson va mapper automatiquement "nom", "ingredients", "allergenes"
-                    List<Plat> plats = mapper.readValue(inputStream, new TypeReference<List<Plat>>(){});
+                    List<Plat> plats = mapper.readValue(inputStream, new TypeReference<List<Plat>>() {
+                    });
 
                     platRepository.saveAll(plats);
                     System.out.println("✅ " + plats.size() + " plats importés !");
                 } catch (Exception e) {
                     System.out.println("❌ Erreur import plats : " + e.getMessage());
                 }
+            } else {
+                    System.out.println("La base de données contient déjà " + platRepository.count() + " plats.");
             }
         };
 

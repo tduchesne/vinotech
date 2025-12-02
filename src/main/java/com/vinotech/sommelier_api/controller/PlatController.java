@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/plats")
-@CrossOrigin(origins = "*") // Important pour le mobile
 public class PlatController {
 
     private final PlatRepository platRepository;

@@ -49,4 +49,19 @@ public class VinController {
                 .orElse(ResponseEntity.notFound().build()); // Si non trouvé (404 Not Found)
     }
 
+    /**
+     * Recherche filtrée.
+     * URL: GET /api/vins/search?couleur=ROUGE&minPrix=50&maxPrix=100&region=loire
+     * Tous les paramètres sont optionnels.
+     */
+    @GetMapping("/search")
+    public List<Vin> searchVins(
+            @RequestParam(required = false) CouleurVin couleur,
+            @RequestParam(required = false) Double minPrix,
+            @RequestParam(required = false) Double maxPrix,
+            @RequestParam(required = false) String region
+    ) {
+        return vinService.searchVins(couleur, minPrix, maxPrix, region);
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.vinotech.sommelier_api.service;
 
+import com.vinotech.sommelier_api.model.CouleurVin;
 import com.vinotech.sommelier_api.model.Vin;
 import com.vinotech.sommelier_api.repository.VinRepository;
 import org.springframework.stereotype.Service;
@@ -36,5 +37,42 @@ public class VinService {
      */
     public Optional<Vin> findById(Long id) {
         return vinRepository.findById(id);
+    }
+
+    /**
+     * Recherche avancée avec critères dynamiques.
+     */
+    public List<Vin> searchVins(CouleurVin couleur, Double minPrix, Double maxPrix, String region) {
+        // On construit la "Spécification" (la règle de filtrage)
+        org.springframework.data.jpa.domain.Specification<Vin> spec = (root, query, criteriaBuilder) -> {
+            java.util.List<jakarta.persistence.criteria.Predicate> predicates = new java.util.ArrayList<>();
+
+            // 1. Filtre Couleur (Exact)
+            if (couleur != null) {
+                predicates.add(criteriaBuilder.equal(root.get("couleur"), couleur));
+            }
+
+            // 2. Filtre Prix Min (Supérieur ou égal)
+            if (minPrix != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("prix"), minPrix));
+            }
+
+            // 3. Filtre Prix Max (Inférieur ou égal)
+            if (maxPrix != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("prix"), maxPrix));
+            }
+
+            // 4. Filtre Région (Partiel & Insensible à la casse, ex: "bourgogne" trouve "France (Bourgogne)")
+            if (region != null && !region.isEmpty()) {
+                String regionPattern = "%" + region.toLowerCase() + "%";
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("region")), regionPattern));
+            }
+
+            // On combine tous les critères avec "AND"
+            return criteriaBuilder.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
+
+        // On exécute la requête via le Repository
+        return vinRepository.findAll(spec);
     }
 }

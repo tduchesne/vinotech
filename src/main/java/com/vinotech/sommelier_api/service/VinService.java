@@ -70,13 +70,17 @@ public class VinService {
             }
 
             // 4. Filtre Région (Partiel & Insensible à la casse, ex: "bourgogne" trouve "France (Bourgogne)")
-            if (region != null && !region.isEmpty()) {
-                String regionPattern = "%" + region.toLowerCase() + "%";
+            if (region != null && !region.isBlank()) {
+                String regionPattern = "%" + region.toLowerCase(java.util.Locale.ROOT) + "%";
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("region")), regionPattern));
             }
 
             // On combine tous les critères avec "AND"
-            return criteriaBuilder.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+            // On combine tous les critères avec "AND", ou une conjonction "true" s'il n'y a aucun filtre
+            if (predicates.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
         // On exécute la requête via le Repository

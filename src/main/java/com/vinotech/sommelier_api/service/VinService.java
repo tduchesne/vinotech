@@ -6,6 +6,9 @@ import com.vinotech.sommelier_api.repository.VinRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+import java.util.ArrayList;
 
 @Service // Indique à Spring que c'est une classe de logique métier
 public class VinService {
@@ -44,14 +47,18 @@ public class VinService {
      */
     public List<Vin> searchVins(CouleurVin couleur, Double minPrix, Double maxPrix, String region) {
         // On construit la "Spécification" (la règle de filtrage)
-        org.springframework.data.jpa.domain.Specification<Vin> spec = (root, query, criteriaBuilder) -> {
-            java.util.List<jakarta.persistence.criteria.Predicate> predicates = new java.util.ArrayList<>();
+        Specification<Vin> spec = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
 
             // 1. Filtre Couleur (Exact)
             if (couleur != null) {
                 predicates.add(criteriaBuilder.equal(root.get("couleur"), couleur));
             }
 
+            // Vérification cohérence des prix
+            if (minPrix != null && maxPrix != null && minPrix > maxPrix) {
+                throw new IllegalArgumentException("minPrix cannot be greater than maxPrix");
+            }
             // 2. Filtre Prix Min (Supérieur ou égal)
             if (minPrix != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("prix"), minPrix));

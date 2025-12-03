@@ -3,6 +3,8 @@ package com.vinotech.sommelier_api.service;
 import com.vinotech.sommelier_api.model.CouleurVin;
 import com.vinotech.sommelier_api.model.Vin;
 import com.vinotech.sommelier_api.repository.VinRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -45,45 +47,27 @@ public class VinService {
     /**
      * Recherche avancée avec critères dynamiques.
      */
-    public List<Vin> searchVins(CouleurVin couleur, Double minPrix, Double maxPrix, String region) {
-        // On construit la "Spécification" (la règle de filtrage)
-        Specification<Vin> spec = (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
+    public Page<Vin> searchVins(CouleurVin couleur, Double minPrix, Double maxPrix, String region, Pageable pageable) {
+        org.springframework.data.jpa.domain.Specification<Vin> spec = (root, query, criteriaBuilder) -> {
+            java.util.List<jakarta.persistence.criteria.Predicate> predicates = new java.util.ArrayList<>();
 
-            // 1. Filtre Couleur (Exact)
             if (couleur != null) {
                 predicates.add(criteriaBuilder.equal(root.get("couleur"), couleur));
             }
-
-            // Vérification cohérence des prix
-            if (minPrix != null && maxPrix != null && minPrix > maxPrix) {
-                throw new IllegalArgumentException("minPrix cannot be greater than maxPrix");
-            }
-            // 2. Filtre Prix Min (Supérieur ou égal)
             if (minPrix != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("prix"), minPrix));
             }
-
-            // 3. Filtre Prix Max (Inférieur ou égal)
             if (maxPrix != null) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("prix"), maxPrix));
             }
-
-            // 4. Filtre Région (Partiel & Insensible à la casse, ex: "bourgogne" trouve "France (Bourgogne)")
-            if (region != null && !region.isBlank()) {
-                String regionPattern = "%" + region.toLowerCase(java.util.Locale.ROOT) + "%";
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("region")), regionPattern));
+            if (region != null && !region.isEmpty()) {
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("region")), "%" + region.toLowerCase() + "%"));
             }
 
-            // On combine tous les critères avec "AND"
-            // On combine tous les critères avec "AND", ou une conjonction "true" s'il n'y a aucun filtre
-            if (predicates.isEmpty()) {
-                return criteriaBuilder.conjunction();
-            }
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            return criteriaBuilder.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
         };
 
-        // On exécute la requête via le Repository
-        return vinRepository.findAll(spec);
+        // On passe l'objet pageable au repository qui gère ça nativement
+        return vinRepository.findAll(spec, pageable);
     }
 }

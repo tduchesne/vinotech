@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -69,6 +71,8 @@ class PlatTest {
         Set<Vin> vins = new HashSet<>();
         vins.add(vin1);
 
+        Set<MenuType> menuTypes = new HashSet<>(Arrays.asList(MenuType.LUNCH, MenuType.SOUPER));
+
         // When - Mise à jour de la signature du constructeur (Ajout des 2 nouveaux champs au milieu ou à la fin selon Lombok)
         // L'ordre Lombok suit généralement l'ordre de déclaration des champs dans la classe.
         // Ordre supposé: id, nom, ingredients, allergenes, allergenesModifiables, optionRemplacement, (vinsAccordes si présent)
@@ -81,7 +85,8 @@ class PlatTest {
                 "Ingredients",
                 "Allergènes",
                 "Gluten",           // allergenesModifiables
-                "Enlever le pain",  // optionRemplacement
+                "Enlever le pain",
+                menuTypes,// optionRemplacement
                 vins                // vinsAccordes
         );
 
@@ -229,6 +234,8 @@ class PlatTest {
     @Test
     @DisplayName("Should create plat with all args constructor and null vins")
     void shouldCreatePlatWithAllArgsConstructorAndNullVins() {
+
+        Set<MenuType> menuTypes = new HashSet<>(Arrays.asList(MenuType.LUNCH, MenuType.SOUPER));
         // Updated Constructor call
         Plat newPlat = new Plat(
                 10L,
@@ -237,12 +244,21 @@ class PlatTest {
                 "Allergènes",
                 null, // modifiable
                 null, // option
-                null  // vins
+                menuTypes,
+                null // vins
         );
 
         assertThat(newPlat.getId()).isEqualTo(10L);
         assertThat(newPlat.getNom()).isEqualTo("Test");
         assertThat(newPlat.getAllergenesModifiables()).isNull();
         assertThat(newPlat.getVinsAccordes()).isNull();
+    }
+
+    @Test
+    @DisplayName("Should get and set typesMenu correctly")
+    void shouldGetAndSetTypesMenuCorrectly() {
+        Plat newPlat = new Plat();
+        newPlat.setTypesMenu(Collections.singleton(MenuType.BRUNCH));
+        assertThat(newPlat.getTypesMenu()).contains(MenuType.BRUNCH);
     }
 }

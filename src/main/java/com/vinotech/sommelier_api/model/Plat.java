@@ -38,6 +38,12 @@ public class Plat {
     @Column(name = "option_remplacement", columnDefinition = "TEXT")
     private String optionRemplacement;
 
+    @ElementCollection(targetClass = MenuType.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "plat_menu_types", joinColumns = @JoinColumn(name = "plat_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "menu_type")
+    private Set<MenuType> typesMenu = new HashSet<>();
+
     /**
      * -- GETTER --
      *  Gets the wines associated with this plat.
